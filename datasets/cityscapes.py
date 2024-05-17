@@ -1,8 +1,11 @@
 import os
+import torch
+import numpy as np
 
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor, Resize, Compose
 from PIL import Image
+
 
 class CityScapes(Dataset):
     def __init__(self, root_dir, split='train', mode='multiple', label_raw=False):
