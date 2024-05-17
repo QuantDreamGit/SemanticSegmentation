@@ -6,7 +6,6 @@ from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor, Resize, Compose
 from PIL import Image
 
-
 class CityScapes(Dataset):
     def __init__(self, root_dir, split='train', mode='multiple', label_raw=False):
         super(CityScapes, self).__init__()
@@ -120,6 +119,9 @@ class CityScapes(Dataset):
                 # Transform  each pixel to a label
                 label = self.convert_from_image_to_label(label)
         
+        # Convert the image to a tensor
+        image = ToTensor()(image)
+
         # Return the image and label
         return image, label
 
