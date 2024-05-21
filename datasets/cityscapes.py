@@ -27,6 +27,7 @@ class CityScapes(Dataset):
         self.cities = sorted(os.listdir(self.image_dir))
 
     def convert_from_image_to_label(self, image):
+        # Image values: [ 0  7  8 11 12 13 17 19 20 21 22 23 24 25 26 27 28 31 32 33]
         # Convert the image to a numpy array
         image = np.array(image)
 
