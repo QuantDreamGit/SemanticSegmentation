@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import os
 
 affine_par = True
 
@@ -171,7 +172,11 @@ class ResNetMulti(nn.Module):
                 {'params': self.get_10x_lr_params(), 'lr': 10 * lr}]
 
 
-def get_deeplab_v2(num_classes=19, pretrain=True, pretrain_model_path='DeepLab_resnet_pretrained_imagenet.pth'):
+def get_deeplab_v2(root_dir, num_classes=19, pretrain=True):
+    # Pretraining path
+    # I prefer to use the full path to avoid any errors
+    # So, I slightly modified the original code
+    pretrain_model_path=f'{root_dir}/deeplab_resnet_pretrained_imagenet.pth'
     model = ResNetMulti(Bottleneck, [3, 4, 23, 3], num_classes)
 
     # Pretraining loading
