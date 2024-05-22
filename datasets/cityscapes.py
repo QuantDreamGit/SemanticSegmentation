@@ -27,74 +27,39 @@ class CityScapes(Dataset):
         self.cities = sorted(os.listdir(self.image_dir))
 
     def convert_from_image_to_label(self, image):
-        # Image values: [ 0  7  8 11 12 13 17 19 20 21 22 23 24 25 26 27 28 31 32 33]
         # Convert the image to a numpy array
         image = np.array(image)
 
         # Create a new image where each pixel is labeled
         labels = {
-            0: 7,   # road
-            1: 8,   # sidewalk
-            2: 11,  # building
-            3: 12,  # wall
-            4: 13,  # fence
-            5: 17,  # pole
-            6: 19,  # traffic light
-            7: 20,  # traffic sign
-            8: 21,  # vegetation
-            9: 22,  # terrain
-            10: 23, # sky
-            11: 24, # person
-            12: 25, # rider
-            13: 26, # car
-            14: 27, # truck
-            15: 28, # bus
-            16: 31, # train
-            17: 32, # motorcycle
-            18: 33, # bicycle
-            255: 0  # everthing else
+            0: 0,   # road
+            1: 1,   # sidewalk
+            2: 2,   # building
+            3: 3,   # wall
+            4: 4,   # fence
+            5: 5,   # pole
+            6: 6,   # traffic light
+            7: 7,   # traffic sign
+            8: 8,   # vegetation
+            9: 9,   # terrain
+            10: 10, # sky
+            11: 11, # person
+            12: 12, # rider
+            13: 13, # car
+            14: 14, # truck
+            15: 15, # bus
+            16: 16, # train
+            17: 17, # motorcycle
+            18: 18, # bicycle
         }
-
-        # Create a new image where each pixel is labeled
-        new_image = np.zeros_like(image)
-        for k, v in labels.items():
-            new_image[image == k] = v
+        # Iterate over each pixel value and assign 255 if it is not in the labels
+        for i in range(image.shape[0]):
+            for j in range(image.shape[1]):
+                if image[i][j] > 18:
+                    image[i][j] = 255
 
         # Convert the image to a tensor
-        return torch.tensor(new_image, dtype=torch.long)
-    
-    def convert_from_label_to_image(self, label):
-        # Create a new image where each pixel is labeled
-        labels = {
-            7: 0,   # road
-            8: 1,   # sidewalk
-            11: 2,  # building
-            12: 3,  # wall
-            13: 4,  # fence
-            17: 5,  # pole
-            19: 6,  # traffic light
-            20: 7,  # traffic sign
-            21: 8,  # vegetation
-            22: 9,  # terrain
-            23: 10, # sky
-            24: 11, # person
-            25: 12, # rider
-            26: 13, # car
-            27: 14, # truck
-            28: 15, # bus
-            31: 16, # train
-            32: 17, # motorcycle
-            33: 18, # bicycle
-            0: 255  # everthing else
-        }
-
-        # Create a new image where each pixel is labeled
-        new_label = np.zeros_like(label)
-        for k, v in labels.items():
-            new_label[label == k] = v
-
-        # Convert the image to a tensor
-        return torch.tensor(new_label, dtype=torch.long)
+        return torch.tensor(image, dtype=torch.long)
 
     def __getitem__(self, idx):
         # Find the city and image index
@@ -111,13 +76,14 @@ class CityScapes(Dataset):
 
         # Load the image and label
         image = self.transform(Image.open(os.path.join(self.image_dir, city, images[idx])))
+
         if self.mode == 'multiple':
             label = self.transform(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_color'))))
         else:
             label = self.transform(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
-
             if self.label_raw == False:
                 # Transform  each pixel to a label
+                
                 label = self.convert_from_image_to_label(label)
         
         # Convert the image to a tensor
