@@ -3,23 +3,32 @@ import torch
 import numpy as np
 
 from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor, Resize, Compose
+from torchvision.transforms import ToTensor, Resize, Compose, Normalize
 from PIL import Image
 
 class CityScapes(Dataset):
-    def __init__(self, root_dir, split='train', mode='multiple', label_raw=False):
+    def __init__(self, root_dir, split='train', mode='multiple', raw_label=False):
         super(CityScapes, self).__init__()
         # Save the root directory of the dataset
         self.root_dir = root_dir
         # Save the Channel mode
         self.mode = mode
         # Save the label raw mode
-        self.label_raw = label_raw
-        # Reduce the size of the images to 512x1024
-        self.transform = Compose([
-            # Resize((512, 1024)),
-            Resize((128, 256)),
+        self.raw_label = raw_label
+        # Define the transformations for the label
+        self.transform_label = Compose([
+            Resize((512, 1024)),
         ])
+        # Define the transformations for the image
+        self.transform_image = Compose([
+            Resize((512, 1024)),
+            ToTensor(),
+            Normalize(
+                mean=[0.2954, 0.3339, 0.2950], 
+                std=[0.1822, 0.1852, 0.1807]
+            )
+        ])
+
         # Image and label directories
         self.image_dir = os.path.join(root_dir, 'images', split)
         self.label_dir = os.path.join(root_dir, 'gtFine', split)
@@ -75,19 +84,18 @@ class CityScapes(Dataset):
             idx -= len(images)
 
         # Load the image and label
-        image = self.transform(Image.open(os.path.join(self.image_dir, city, images[idx])))
+        image = self.transform_image(Image.open(os.path.join(self.image_dir, city, images[idx])))
 
+        # Load the label
         if self.mode == 'multiple':
-            label = self.transform(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_color'))))
+            # Load the color label
+            label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_color'))))
         else:
-            label = self.transform(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
-            if self.label_raw == False:
-                # Transform  each pixel to a label
-                
+            # Load the single channel label
+            label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
+            if self.raw_label == False:
+                # Convert the label to the correct format
                 label = self.convert_from_image_to_label(label)
-        
-        # Convert the image to a tensor
-        image = ToTensor()(image)
 
         # Return the image and label
         return image, label
