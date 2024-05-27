@@ -19,16 +19,11 @@ def convert_label(label):
     return label
 
 class CityScapes(Dataset):
-    def __init__(self, root_dir, 
-                 split='train', mode='multiple', raw_label=False,
+    def __init__(self, root_dir, split='train',
                  custom_transform_image=None, custom_transform_label=None):
         super(CityScapes, self).__init__()
         # Save the root directory of the dataset
         self.root_dir = root_dir
-        # Save the Channel mode
-        self.mode = mode
-        # Save the label raw mode
-        self.raw_label = raw_label
         # Save the custom transformations
         self.custom_transform_image = custom_transform_image
         self.custom_transform_label = custom_transform_label
@@ -74,18 +69,12 @@ class CityScapes(Dataset):
             # Load the image with the default transformation
             image = self.transform_image(Image.open(os.path.join(self.image_dir, city, images[idx])))
 
-        # Load the label
-        if self.mode == 'multiple':
-            # Load the color label
-            label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_color'))))
-        else:
-            # Load the single channel label
-            label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
-            if self.raw_label == False:
-                # Convert the label to the correct format
-                label = convert_label(np.array(label))
-                # Transform the label to a tensor
-                label = torch.tensor(label).long()
+        # Load the single channel label
+        label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
+        # Convert the label to the correct format
+        label = convert_label(np.array(label))
+        # Transform the label to a tensor
+        label = torch.tensor(label).long()
 
         # Return the image and label
         return image, label
