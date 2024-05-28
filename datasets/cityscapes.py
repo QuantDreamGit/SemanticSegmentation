@@ -7,17 +7,6 @@ from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor, Resize, Compose, Normalize
 from PIL import Image
 
-@njit
-def convert_label(label):
-    # Iterate over each pixel value and assign 255 if it is not in the labels
-    for i in range(label.shape[0]):
-        for j in range(label.shape[1]):
-            if label[i][j] > 18:
-                label[i][j] = 255
-
-    # Return the labels
-    return label
-
 class CityScapes(Dataset):
     def __init__(self, root_dir, split='train',
                  custom_transform_image=None, custom_transform_label=None):
@@ -71,10 +60,8 @@ class CityScapes(Dataset):
 
         # Load the single channel label
         label = self.transform_label(Image.open(os.path.join(self.label_dir, city, images[idx].replace('leftImg8bit', 'gtFine_labelTrainIds'))))
-        # Convert the label to the correct format
-        label = convert_label(np.array(label))
         # Transform the label to a tensor
-        label = torch.tensor(label).long()
+        label = torch.tensor(np.array(label)).long()
 
         # Return the image and label
         return image, label
