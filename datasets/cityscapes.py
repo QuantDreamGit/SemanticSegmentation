@@ -66,7 +66,9 @@ class CityScapes(Dataset):
         # Check if there are custom transformations
         if self.custom_transform_image != None:
             # Load the image with the custom transformation
-            image = self.custom_transform_image(Image.open(os.path.join(self.image_dir, city, images[idx])))
+            image = self.custom_transform_image(
+                image=np.array(Image.open(os.path.join(self.image_dir, city, images[idx])))
+            )['image']
         else:
             # Load the image with the default transformation
             image = self.transform_image(Image.open(os.path.join(self.image_dir, city, images[idx])))

@@ -70,8 +70,7 @@ class GTA5(Dataset):
             A.Normalize(
                 mean=(0.5084, 0.5021, 0.4838), 
                 std=(0.2490, 0.2440, 0.2424),
-            ),
-            ToTensorV2()
+            )
         ])
         self.transform_label = A.Resize(height=720, width=1280)
         
@@ -90,17 +89,19 @@ class GTA5(Dataset):
         image = np.array(Image.open(image_path))
         label = cv2.imread(label_path)
 
+        # Apply the transform
+        image = self.transform_image(image=image)['image']
+        label = self.transform_label(image=label)['image']
+
+        # Convert the label to the same format as cityscapes
+        label = convert_label(label=label)
+
         # Augment the images if the custom transform is defined
         if self.custom_transform:
             augmeted = self.custom_transform(image=image, mask=label)
             image = augmeted['image']
             label = augmeted['mask']
 
-        # Apply the transform
-        image = self.transform_image(image=image)['image']
-        label = self.transform_label(image=label)['image']
-        # Convert the label to the same format as cityscapes
-        label = convert_label(label=label)
         # Transform the label to a tensor
         label = torch.tensor(label).long()
 
