@@ -1,4 +1,17 @@
 
 MLDL_LAB/GTA5/
+.gtignore
 
-
+datasets/Cityspaces
+datasets/GTA5
+__pycache__/utils.cpython-310.pyc
+datasets/__pycache__
+models/bisenet/__pycache__
+models/bisenet/bisenet_basic
+models/bisenet/bisenet_gta5_adapted
+models/bisenet/bisenet_gta5_aug
+models/bisenet/bisenet_gta5_shift
+models/deeplabv2/deeplab_resnet_pretrained_imagenet.pth
+models/deeplabv2/deeplabv2.pth
+models/deeplabv2/__pycache__
+.gitignore
