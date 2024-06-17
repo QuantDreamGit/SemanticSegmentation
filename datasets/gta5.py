@@ -101,9 +101,13 @@ class GTA5(Dataset):
             augmeted = self.custom_transform(image=image, mask=label)
             image = augmeted['image']
             label = augmeted['mask']
-
-        # Transform the label to a tensor
+        else:
+            # Convert the image to a tensor
+            image = torch.tensor(image).permute(2, 0, 1).float()
+            
+        # Transform the image and label to a tensor
         label = torch.tensor(label).long()
+
 
         # Return the image and label
         return image, label
